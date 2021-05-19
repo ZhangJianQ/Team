@@ -1,0 +1,14 @@
+{
+  "include": ["./src/**/*"],
+  // tsconfig.json 配置
+  "compilerOptions": {
+    // 路径解析，配合Webpack别名配置
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "module": "es2015",
+    "moduleResolution": "node",
+    "target": "es5",
+    "sourceMap": true
+  }
+}

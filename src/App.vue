@@ -1,14 +1,19 @@
 <template>
   <div id="app">
-    <bee-alert type="warn" title="错误提示的方案" :show-icon="true"></bee-alert>
+    <breadcrumb>
+      <breadcrumb-item>首页</breadcrumb-item>
+      <breadcrumb-item to="http://www.baidu.com">活动管理</breadcrumb-item>
+    </breadcrumb>
   </div>
 </template>
 
 <script>
-import BeeAlert from '@/components/alert'
+import Breadcrumb from '@/components/Breadcrumb'
+import BreadcrumbItem from '@/components/breadcrumb-item'
 export default {
   components: {
-    BeeAlert
+    Breadcrumb,
+    BreadcrumbItem
   },
   data() {
     return {

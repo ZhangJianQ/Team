@@ -26,11 +26,26 @@ module.exports = {
         loader: 'vue-loader'
       },
       {
-        test: /\.(styl(us)?|css)$/,
+        test: /\.css$/,
+        use: [
+          mode !== 'production' ? 'style-loader' : MiniCssExtractPlugin.loader,
+          'css-loader'
+        ]
+      },
+      {
+        test: /\.styl(us)?$/,
         use: [
           mode !== 'production' ? 'style-loader' : MiniCssExtractPlugin.loader,
           'css-loader',
           'stylus-loader'
+        ]
+      },
+      {
+        test: /\.s[ac]ss$/,
+        use: [
+          mode !== 'production' ? 'style-loader' : MiniCssExtractPlugin.loader,
+          'css-loader',
+          'sass-loader'
         ]
       },
       {

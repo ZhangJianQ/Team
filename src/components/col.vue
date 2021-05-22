@@ -52,3 +52,19 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+[class*='el-col-'] {
+  float: left;
+  box-sizing: border-box;
+}
+
+@for $i from 1 through 24 {
+  .el-col-#{$i} {
+    width: (1 / 24 * $i * 100) * 1%;
+  }
+  .el-col-offset-#{$i} {
+    margin-left: (1 / 24 * $i * 100) * 1%;
+  }
+}
+</style>

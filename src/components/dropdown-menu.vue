@@ -28,6 +28,7 @@ export default {
     })
   },
   mounted() {
+    // 将下拉设置成需要 popup 的元素
     this.dropdown.popperElm = this.popperElm = this.$el
     this.referenceElm = this.dropdown.$el
     this.dropdown.initDOMOperation()

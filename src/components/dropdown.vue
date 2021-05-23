@@ -5,7 +5,7 @@ export default {
   componentName: 'Dropdown',
   provide() {
     return {
-      dropdown: this
+      dropdown: this // 在 dropdown-menu 中引用
     }
   },
   props: {
@@ -179,6 +179,7 @@ export default {
   render(h) {
     let triggerElm = this.$slots.default
 
+    // 手动指定触发器和下拉菜单
     return h(
       'div',
       {

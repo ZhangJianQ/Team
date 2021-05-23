@@ -55,6 +55,9 @@ export default {
         this.handleDrag(evt)
       }
     },
+    /**
+     * 用偏移量/总量 * 100%
+     */
     handleDrag(evt) {
       const rect = this.$el.getBoundingClientRect()
       const { thumb } = this.$refs
@@ -71,6 +74,7 @@ export default {
         )
       } else {
         let top = evt.clientY - rect.top
+        // 两次比较是为了处理上边界和下边界情况
         top = Math.min(top, rect.height - thumb.offsetHeight / 2)
         top = Math.max(thumb.offsetHeight / 2, top)
 

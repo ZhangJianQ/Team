@@ -71,6 +71,6 @@ export default {
 
 <style lang="scss">
 .color-picker-dropdown {
-  width: 400px;
+  width: 340px;
 }
 </style>

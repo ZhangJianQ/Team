@@ -283,6 +283,9 @@ export default {
         })
         .map(rule => Object.assign({}, rule))
     },
+    /**
+     * 设置不同类型的触发器
+     */
     onFieldBlur() {
       this.validate('blur')
     },
@@ -294,6 +297,10 @@ export default {
 
       this.validate('change')
     },
+    /**
+     * 接收来自表单组件提交的事件
+     * input, textarea - dispatch('ElFormItem', 'form.blur', [this.value])
+     */
     addValidateEvents() {
       const rules = this.getRules()
       if (rules.length || this.required !== undefined) {
@@ -306,6 +313,7 @@ export default {
     }
   },
   mounted() {
+    // 将验证项提交到父组件
     if (this.prop) {
       this.dispatch('Form', 'form.addField', [this])
 

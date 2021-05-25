@@ -13,6 +13,9 @@
 
 <script>
 // 表单使用了命令模式，每个子项都有相同的 API
+/**
+ * 命令模式字段：resetField, clearValidate, validate, validateField
+ */
 import Emitter from '@/mixins/emitter'
 export default {
   name: 'Form',
@@ -84,6 +87,9 @@ export default {
         field.resetField()
       })
     },
+    /**
+     * 使用命令模式移除表单项的校验结果
+     */
     clearValidate(props = []) {
       const fields = props.length
         ? typeof props === 'string'

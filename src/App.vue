@@ -1,17 +1,12 @@
 <template>
   <div id="app">
-    <el-input
-      type="text"
-      v-model="pwd"
-      maxlength="20"
-      show-word-limit
-      placeholder="Please enter what you want"
-    ></el-input>
+    <button @click="showMessage">显示</button>
   </div>
 </template>
 
 <script>
 import ElInput from '@/components/input'
+import Message from '@/components/message.js'
 export default {
   components: {
     ElInput
@@ -22,18 +17,8 @@ export default {
     }
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          alert('submit!')
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
-    },
-    resetForm(formName) {
-      this.$refs[formName].resetFields()
+    showMessage() {
+      Message.success('不成功，便成仁')
     }
   }
 }
@@ -44,7 +29,6 @@ export default {
   display block
   overflow auto
   height 400px
-
 .dark
   background-color orange
   color white

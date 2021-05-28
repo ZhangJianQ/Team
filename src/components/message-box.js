@@ -23,6 +23,7 @@ const MessageBoxContrustor = Vue.extend(messageBoxMain)
 let currentMessage, instance
 let messageBoxs = []
 /**
+ * 代理模式
  * 回调包装器，执行消息框操作回调
  * @param {string} action
  */

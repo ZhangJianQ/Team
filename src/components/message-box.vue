@@ -124,6 +124,10 @@ export default {
         this.handleAction(this.closeOrCancel ? 'close' : 'cancel')
       }
     },
+    /**
+     * 中介模式
+     * 通用操作，判断不同类型的按钮操作
+     */
     handleAction(action) {
       if (this.$type === 'prompt' && action === 'confirm' && !this.validate()) {
         return

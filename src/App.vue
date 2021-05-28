@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <button @click="showMessage" :duration="5000">显示</button>
+    <el-tooltip effect="dark" content="Top Left 提示文字" placement="top-start">
+      <button>显示</button>
+    </el-tooltip>
   </div>
 </template>
 
 <script>
-import ElInput from '@/components/input'
-import MessageBox from '@/components/message-box.js'
-import Message from '@/components/message.js'
+import ElTooltip from '@/components/tooltip.vue'
 export default {
   components: {
-    ElInput
+    ElTooltip
   },
   data() {
     return {
@@ -19,23 +19,10 @@ export default {
   },
   methods: {
     showMessage() {
-      MessageBox.confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      Notification({
+        title: '提示',
+        message: '这是一条不会自动关闭的消息'
       })
-        .then(() => {
-          Message({
-            type: 'success',
-            message: '删除成功!'
-          })
-        })
-        .catch(() => {
-          Message({
-            type: 'info',
-            message: '已取消删除'
-          })
-        })
     }
   }
 }

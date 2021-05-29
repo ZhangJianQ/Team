@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import PopupManager from './popup-manage'
-import getScrollBarWidth from '../scrollbar-width'
-import { getStyle, addClass, removeClass, hasClass } from '../dom'
+import getScrollBarWidth from '@/utils/scrollbar-width'
+import { getStyle, addClass, removeClass, hasClass } from '@/utils/dom'
 
 let idSeed = 1
 

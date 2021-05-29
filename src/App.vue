@@ -1,16 +1,18 @@
 <template>
   <div id="app">
-    <el-tooltip effect="dark" content="Top Left 提示文字" placement="top-start">
-      <button>显示</button>
-    </el-tooltip>
+    <el-scrollbar wrap-class="el-picker-panel__content"
+                  style="height:100px;overflow:scroll">
+      <div class="inner"
+           style="height:1000px;"></div>
+    </el-scrollbar>
   </div>
 </template>
 
 <script>
-import ElTooltip from '@/components/tooltip.vue'
+import ElScrollbar from '@/components/scrollbar'
 export default {
   components: {
-    ElTooltip
+    ElScrollbar
   },
   data() {
     return {
@@ -33,7 +35,6 @@ export default {
   display block
   overflow auto
   height 400px
-
 .dark
   background-color orange
   color white

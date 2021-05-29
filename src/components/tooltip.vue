@@ -230,6 +230,9 @@ export default {
     }
   },
   beforeDestroy() {
+    this.popperVM && this.popperVM.$destroy()
+  },
+  destroyed() {
     const reference = this.reference
     if (reference.nodeType === 1) {
       off(reference, 'mouseenter', this.show)
@@ -241,3 +244,20 @@ export default {
   }
 }
 </script>
+<style lang="scss">
+.tooltip {
+  position: absolute;
+  border-radius: 4px;
+  padding: 10px;
+  z-index: 2000;
+  font-size: 12px;
+  line-height: 1.2;
+  min-width: 10px;
+  word-wrap: break-word;
+
+  &.is-dark {
+    background: #303133;
+    color: #fff;
+  }
+}
+</style>

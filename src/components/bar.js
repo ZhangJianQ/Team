@@ -46,14 +46,14 @@ export default {
       return BAR_MAP[this.vertical ? 'vertical' : 'horizontal']
     },
     wrap() {
-      return this.$parents.wrap
+      return this.$parent.wrap
     }
   },
   render(h) {
     const { size, move, bar } = this
     return (
       <div
-        class={['scorll__bar', 'is-' + bar.key]}
+        class={['scrollbar__bar', 'is-' + bar.key]}
         onMousedown={this.clickTrackHandler}
       >
         <div
@@ -66,9 +66,13 @@ export default {
     )
   },
   methods: {
+    /**
+     * 根据点击的位置设置滚动条的位置, 类似颜色拾取器中设置色调
+     */
     clickTrackHandler(e) {
       const offset = Math.abs(
-        e.target.getBoundClientRect()[this.bar.direction] - e[this.bar.client]
+        e.target.getBoundingClientRect()[this.bar.direction] -
+          e[this.bar.client]
       )
       const thumbHalf = this.$refs.thumb[this.bar.offset] / 2
       const thumbPositionPercentage =
@@ -77,6 +81,9 @@ export default {
       this.wrap[this.bar.scroll] =
         (thumbPositionPercentage * this.wrap[this.bar.scrollSize]) / 100
     },
+    /**
+     * 拖动滚动条，设置滚动条位置和内容位置
+     */
     clickThumbHandler(e) {
       if (e.ctrlKey || e.button === 2) {
         return
@@ -87,7 +94,7 @@ export default {
       this[this.bar.axis] =
         e.currentTarget[this.bar.offset] -
         (e[this.bar.client] -
-          e.currentTarget.getBoundClientRect()[this.bar.direction])
+          e.currentTarget.getBoundingClientRect()[this.bar.direction])
     },
     startDrag(e) {
       e.stopImmediatePropagation()
@@ -103,7 +110,7 @@ export default {
 
       if (!prevPage) return
       const offset =
-        (this.$el.getBoundClientRect()[this.bar.direction] -
+        (this.$el.getBoundingClientRect()[this.bar.direction] -
           e[this.bar.client]) *
         -1
       const thumbClickPosition = this.$refs.thumb[this.bar.offset] - prevPage

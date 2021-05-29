@@ -20,7 +20,7 @@ export default {
   data() {
     return {
       sizeWidth: '0',
-      sizeHeight: 0,
+      sizeHeight: '0',
       moveX: 0,
       moveY: 0
     }
@@ -37,13 +37,13 @@ export default {
     if (gutter) {
       const gutterWidth = `-${gutter}px`
       // 设置右、下边距，等于滚动条宽度
-      const gutterStyle = `margin-bottom:${gutterWidth};margin-rigth:${gutterWidth}`
+      const gutterStyle = `margin-bottom:${gutterWidth};margin-right:${gutterWidth}`
 
       if (Array.isArray(this.wrapStyle)) {
         this.wrapStyle.forEach(item => {
           style = Object.assign(style, item)
         })
-        style.marginRight = marginBottom = gutterWidth
+        style.marginRight = style.marginBottom = gutterWidth
       } else if (typeof this.wrapStyle === 'string') {
         style += gutterStyle
       } else {
@@ -60,15 +60,17 @@ export default {
       },
       this.$slots.default
     )
-    const wrap = (
-      <div
-        ref="warp"
-        style={style}
-        onScroll={this.handleScroll}
-        class={[this.wrapClass, 'scrollbar__wrap']}
-      >
-        {[view]}
-      </div>
+    const wrap = h(
+      'div',
+      {
+        ref: 'wrap',
+        style,
+        class: [this.wrapClass, 'scrollbar__wrap'],
+        on: {
+          scroll: this.handleScroll
+        }
+      },
+      [view]
     )
     let nodes
 
@@ -76,7 +78,7 @@ export default {
       nodes = [
         wrap,
         <Bar move={this.moveX} size={this.sizeWidth}></Bar>,
-        <Bar vertical move={this.moveX} size={this.sizeWidth}></Bar>
+        <Bar vertical move={this.moveY} size={this.sizeHeight}></Bar>
       ]
     } else {
       nodes = [
@@ -90,14 +92,20 @@ export default {
       ]
     }
 
-    return h('div', { class: 'scrollbar', nodes })
+    return h('div', { class: 'scrollbar' }, nodes)
   },
   methods: {
+    /**
+     * 动态设置滚动条的位置 translateX/Y
+     */
     handleScroll() {
       const wrap = this.wrap
       this.moveY = (wrap.scrollTop / wrap.clientHeight) * 100
       this.moveX = (wrap.scrollLeft / wrap.clientWidth) * 100
     },
+    /**
+     * 设置滚动条的高度, 可见区域高度/内容高度
+     */
     update() {
       let heightPercentage, widthPercentage
       const wrap = this.wrap
@@ -111,6 +119,7 @@ export default {
     }
   },
   mounted() {
+    // 绑定 resize 事件
     if (this.native) return
     this.$nextTick(this.update)
     !this.noresize && on(this.$refs.resize, 'resize', this.update)

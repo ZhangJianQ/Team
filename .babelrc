@@ -1,15 +1,19 @@
 {
-  "presets": [ 
-    ["@babel/preset-env", {
-      "modules":false,
-      // "debug":true,
-      "useBuiltIns": "usage",
-      "corejs":3
-    }]
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "modules": false,
+        // "debug":true,
+        "useBuiltIns": "usage",
+        "corejs": 3
+      }
+    ]
   ],
   "plugins": [
+    "transform-vue-jsx"
     // ["@babel/plugin-transform-runtime", {
     //   "corejs": 3
     // }]
-   ]
+  ]
 }

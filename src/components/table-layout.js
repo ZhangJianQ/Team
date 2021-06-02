@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import scrollbarWidth from '../utils/scrollbar-width'
-
+// 计算表格主体部分宽高
 class TableLayout {
   constructor(options) {
     this.observers = []
@@ -10,8 +10,8 @@ class TableLayout {
     this.fit = true
     this.showHeader = true
     this.height = null
-    this.scrollX = false
-    this.scrollY = false
+    this.scrollX = false // 是否有水平滚动
+    this.scrollY = false // 是否有垂直滚动
     this.bodyWidth = null
     this.fixedWidth = null
     this.rightFixedWidth = null
@@ -20,7 +20,7 @@ class TableLayout {
     this.headerHeight = 44
     this.footerHeight = 44
     this.viewportHeight = null
-    this.bodyHeight = null
+    this.bodyHeight = null // 等于设置的 height - headerHeight- footerHeight
     this.fixedBodyHeight = null
     this.gutterWidth = scrollbarWidth()
 
@@ -37,10 +37,14 @@ class TableLayout {
       throw Error('store is required')
     }
   }
+  /**
+   * 垂直方向是否有滚动，对比 body.offsetHeight 和 bodyHeight
+   */
   updateScrollY() {
     const height = this.height
-    if (height) return false
     const bodyWrapper = this.table.bodyWrapper
+
+    if (height === null) return false
 
     if (this.table.$el && bodyWrapper) {
       const body = bodyWrapper.querySelector('.table__body')
@@ -142,7 +146,7 @@ class TableLayout {
     }
     return false
   }
-  updateColumnWidth() {
+  updateColumnsWidth() {
     const fit = this.fit
     const bodyWidth = this.table.$el.clientWidth
     let bodyMinWidth = 0

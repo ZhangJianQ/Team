@@ -1,7 +1,6 @@
 <template>
-  <div
-    class="table"
-    :class="[
+  <div class="table"
+       :class="[
       {
         'table--fit': fit,
         'table--striped': stripe,
@@ -13,222 +12,178 @@
       },
       tableSize ? `table--${tableSize}` : ''
     ]"
-    @mouseleave="handleMouseLeave($event)"
-  >
-    <div class="hidden-columns" ref="hiddenColumns">
+       @mouseleave="handleMouseLeave($event)">
+    <div class="hidden-columns"
+         ref="hiddenColumns">
       <slot></slot>
     </div>
-    <div
-      v-if="showHeader"
-      v-mousewheel="handleHeaderFooterMousewheel"
-      class="table__header-wrapper"
-      ref="headerWrapper"
-    >
-      <table-header
-        ref="tableHeader"
-        :store="store"
-        :border="border"
-        :default-sort="defaultSort"
-        :style="{
+    <div v-if="showHeader"
+         v-mousewheel="handleHeaderFooterMousewheel"
+         class="table__header-wrapper"
+         ref="headerWrapper">
+      <table-header ref="tableHeader"
+                    :store="store"
+                    :border="border"
+                    :default-sort="defaultSort"
+                    :style="{
           width: layout.bodyWidth ? layout.bodyWidth + 'px' : ''
-        }"
-      ></table-header>
+        }"></table-header>
     </div>
-    <div class="table__body-wrapper" ref="bodyWrapper" :style="[bodyHeight]">
-      <table-body
-        :content="content"
-        :store="store"
-        :stripe="stripe"
-        :row-class-name="rowClassName"
-        :row-style="rowStyle"
-        :highlight="highlightCurrentRow"
-        :style="{ width: bodyWdith }"
-      ></table-body>
-      <div class="table__empty-block" v-if="!data || data.length === 0">
+    <div class="table__body-wrapper"
+         ref="bodyWrapper"
+         :style="[bodyHeight]">
+      <table-body :content="content"
+                  :store="store"
+                  :stripe="stripe"
+                  :row-class-name="rowClassName"
+                  :row-style="rowStyle"
+                  :highlight="highlightCurrentRow"
+                  :style="{ width: bodyWdith }"></table-body>
+      <div class="table__empty-block"
+           v-if="!data || data.length === 0">
         <span class="table__empty-text">
           <slot name="empty">暂无数据</slot>
         </span>
       </div>
-      <div
-        ref="appendWrapper"
-        class="table__append-wrapper"
-        v-if="$slots.append"
-      >
+      <div ref="appendWrapper"
+           class="table__append-wrapper"
+           v-if="$slots.append">
         <slot name="append"></slot>
       </div>
     </div>
-    <div
-      ref="footerWrapper"
-      class="table__footer-wrapper"
-      v-if="showSummary"
-      v-show="data && data.length > 0"
-      v-mousewheel="handleHeaderFooterMousewheel"
-    >
-      <table-footer
-        :store="store"
-        :border="border"
-        :sum-text="sumText"
-        :summary-method="summaryMethod"
-        :default-sort="defaultSort"
-        :style="{ width: layout.bodyWidth ? layout.bodyWidth + 'px' : '' }"
-      ></table-footer>
+    <div ref="footerWrapper"
+         class="table__footer-wrapper"
+         v-if="showSummary"
+         v-show="data && data.length > 0"
+         v-mousewheel="handleHeaderFooterMousewheel">
+      <table-footer :store="store"
+                    :border="border"
+                    :sum-text="sumText"
+                    :summary-method="summaryMethod"
+                    :default-sort="defaultSort"
+                    :style="{ width: layout.bodyWidth ? layout.bodyWidth + 'px' : '' }"></table-footer>
     </div>
-    <div
-      v-if="fixedColumns.length > 0"
-      v-mousewheel="handleFixedMousewheel"
-      class="table-fixed"
-      ref="fixedWrapper"
-      :style="[
+    <div v-if="fixedColumns.length > 0"
+         v-mousewheel="handleFixedMousewheel"
+         class="table-fixed"
+         ref="fixedWrapper"
+         :style="[
         {
           width: layout.fixedWidth ? layout.fixedWidth + 'px' : ''
         },
         fixedHeight
-      ]"
-    >
-      <div
-        v-if="showHeader"
-        class="table__fixed-header-wrapper"
-        ref="fixedHeaderWrapper"
-      >
-        <table-header
-          ref="fixedTableHeader"
-          fixed="left"
-          :border="border"
-          :store="store"
-          :style="{
+      ]">
+      <div v-if="showHeader"
+           class="table__fixed-header-wrapper"
+           ref="fixedHeaderWrapper">
+        <table-header ref="fixedTableHeader"
+                      fixed="left"
+                      :border="border"
+                      :store="store"
+                      :style="{
             width: bodyWidth
-          }"
-        ></table-header>
+          }"></table-header>
       </div>
-      <div
-        class="table__fixed-body-wrapper"
-        ref="fixedBodyWrapper"
-        :style="[
+      <div class="table__fixed-body-wrapper"
+           ref="fixedBodyWrapper"
+           :style="[
           {
             top: layout.headerHeader + 'px'
           },
           fixedBodyHeight
-        ]"
-      >
-        <table-body
-          fixed="left"
-          :store="store"
-          :stripe="stripe"
-          :highlight="highlightCurrentRow"
-          :row-class-name="rowClassName"
-          :row-style="rowStyle"
-          :style="{ width: bodyWidth }"
-        ></table-body>
-        <div
-          class="table__append-gutter"
-          :style="{ height: layout.appendHeight + 'px' }"
-        ></div>
+        ]">
+        <table-body fixed="left"
+                    :store="store"
+                    :stripe="stripe"
+                    :highlight="highlightCurrentRow"
+                    :row-class-name="rowClassName"
+                    :row-style="rowStyle"
+                    :style="{ width: bodyWidth }"></table-body>
+        <div class="table__append-gutter"
+             :style="{ height: layout.appendHeight + 'px' }"></div>
       </div>
-      <div
-        v-if="showSummary"
-        class="table__fixed-footer-wrapper"
-        v-show="data && data.length > 0"
-        ref="fixedFooterWrapper"
-      >
-        <table-footer
-          fixed="left"
-          :store="store"
-          :border="border"
-          :sum-text="sumText"
-          :summary-method="summaryMethod"
-          :style="{
+      <div v-if="showSummary"
+           class="table__fixed-footer-wrapper"
+           v-show="data && data.length > 0"
+           ref="fixedFooterWrapper">
+        <table-footer fixed="left"
+                      :store="store"
+                      :border="border"
+                      :sum-text="sumText"
+                      :summary-method="summaryMethod"
+                      :style="{
             width: bodyWidth
-          }"
-        ></table-footer>
+          }"></table-footer>
       </div>
     </div>
-    <div
-      v-if="rightFixedColumns > 0"
-      class="table__fixed-right"
-      v-mousewheel="handleFixedMousewheel"
-      ref="rigthFixedWrapper"
-      :style="[
+    <div v-if="rightFixedColumns > 0"
+         class="table__fixed-right"
+         v-mousewheel="handleFixedMousewheel"
+         ref="rigthFixedWrapper"
+         :style="[
         {
           width: layout.rightFixedWidth ? layout.rightFixedWidth + 'px' : '',
           right: layout.scrollY ? (border ? layout.gutterWidth : 0) + 'px' : ''
         },
         fixedHeight
-      ]"
-    >
-      <div
-        v-if="showHeader"
-        class="table__fixed-header-wrapper"
-        ref="rightFixedHeaderWrapper"
-      >
-        <table-header
-          ref="rightFixedHeader"
-          fixed="right"
-          :border="border"
-          :store="store"
-          :style="{
+      ]">
+      <div v-if="showHeader"
+           class="table__fixed-header-wrapper"
+           ref="rightFixedHeaderWrapper">
+        <table-header ref="rightFixedHeader"
+                      fixed="right"
+                      :border="border"
+                      :store="store"
+                      :style="{
             width: bodyWidth
-          }"
-        ></table-header>
+          }"></table-header>
       </div>
-      <div
-        class="table__fixed-body-wrapper"
-        ref="rightFixedBodyWrapper"
-        :style="[
+      <div class="table__fixed-body-wrapper"
+           ref="rightFixedBodyWrapper"
+           :style="[
           {
             top: layout.headerHeight + 'px'
           },
           fixedBodyHeight
-        ]"
-      >
-        <table-body
-          fixed="right"
-          :store="store"
-          stripe="stripe"
-          :row-class-name="rowClassName"
-          :row-style="rowStyle"
-          :highlight="highlightCurrentRow"
-          :style="{
+        ]">
+        <table-body fixed="right"
+                    :store="store"
+                    stripe="stripe"
+                    :row-class-name="rowClassName"
+                    :row-style="rowStyle"
+                    :highlight="highlightCurrentRow"
+                    :style="{
             width: bodyWidth
-          }"
-        ></table-body>
-        <div
-          class="table__append-gutter"
-          v-if="$slots.append"
-          :style="{ height: layout.appendHeight + 'px' }"
-        ></div>
+          }"></table-body>
+        <div class="table__append-gutter"
+             v-if="$slots.append"
+             :style="{ height: layout.appendHeight + 'px' }"></div>
       </div>
-      <div
-        class="table__fixed-footer-wrapper"
-        v-if="showSummay"
-        v-show="data && data.length > 0"
-        ref="rightFixedFooterWrapper"
-      >
-        <table-footer
-          fixed="right"
-          :store="store"
-          :border="border"
-          :sum-text="sumText"
-          :summary-method="summaryMethod"
-          :style="{
+      <div class="table__fixed-footer-wrapper"
+           v-if="showSummay"
+           v-show="data && data.length > 0"
+           ref="rightFixedFooterWrapper">
+        <table-footer fixed="right"
+                      :store="store"
+                      :border="border"
+                      :sum-text="sumText"
+                      :summary-method="summaryMethod"
+                      :style="{
             width: bodyWidth
-          }"
-        ></table-footer>
+          }"></table-footer>
       </div>
     </div>
-    <div
-      class="table__fixed-right-patch"
-      v-if="rightFixedColumns.length > 0"
-      ref="rightFixedPatch"
-      :style="{
+    <!-- 竖向(layout.scrollY)滚动时滚动条的宽度 -->
+    <div class="table__fixed-right-patch"
+         v-if="rightFixedColumns.length > 0"
+         ref="rightFixedPatch"
+         :style="{
         width: layout.scrollY ? layout.gutterWidth + 'px' : '0',
         height: layout.headerHeight + 'px'
-      }"
-    ></div>
-    <div
-      class="table__column-resize-proxy"
-      ref="resizeProxy"
-      v-show="resizeProxyVisible"
-    ></div>
+      }"></div>
+    <div class="table__column-resize-proxy"
+         ref="resizeProxy"
+         v-show="resizeProxyVisible"></div>
   </div>
 </template>
 
@@ -247,24 +202,64 @@ export default {
       type: Array,
       defaultL: () => []
     },
+    // 样式属性
     size: String,
     width: [String, Number],
     height: [String, Number],
     maxHeight: [String, Number],
     fit: {
+      // 列自动撑开
       type: Boolean,
       default: true
     },
-    stripe: Boolean,
+    stripe: Boolean, // 斑马线
     border: Boolean,
-    constext: {},
     showHeader: {
       type: Boolean,
       default: true
     },
+    highlightCurrentRow: Boolean,
+    // 合并相关
     showSummary: Boolean,
     summaryMethod: Function,
-    rowClassName: [String, Function]
+    constext: {},
+    emptyText: String,
+    // 样式设置
+    rowClassName: [String, Function],
+    rowStyle: [Object, Function],
+    cellClassName: [String, Function],
+    cellStyle: [Object, Function],
+    headerRowClassName: [String, Function],
+    headerRowStyle: [Object, Function],
+    headerCellClassName: [String, Function],
+    headerCellStyle: [Object, Function],
+    defaultSort: Object,
+    spanMethod: Function,
+    selectedOnIndeterminate: {
+      // 表头复选框行为
+      type: Boolean,
+      default: true
+    },
+    // 树相关属性
+    defaultExpandAll: Boolean,
+    currentRowKey: [String, Number],
+    expandRowKeys: Array, //配合 rowKey 设置展开的行
+    indent: {
+      // 树节点的缩进
+      type: Number,
+      default: 16
+    },
+    treeProps: {
+      type: Object,
+      default() {
+        return {
+          hasChildren: 'hasChildren',
+          children: 'children'
+        }
+      }
+    },
+    lazy: Boolean, // 懒加载子节点
+    load: Function // 懒加载方法
   },
   components: {
     TableHeader,
@@ -278,7 +273,8 @@ export default {
     bodyWrapper() {
       return this.$refs.bodyWrapper
     },
-    showUpdateHeight() {
+    shouldUpdateHeight() {
+      // 如果设置了高度和列固定就更新表格高度
       return (
         this.height ||
         this.maxHeight ||
@@ -287,12 +283,15 @@ export default {
       )
     },
     bodyWidth() {
+      // 表格宽度 = 表格可见宽度 - 活动条宽度
       const { bodyWidth, scrollY, gutterWidth } = this.layout
       return bodyWidth ? bodyWidth - (scrollY ? gutterWidth : 0) + 'px' : ''
     },
     bodyHeight() {
+      // 表格高度
       const { headerHeight = 0, bodyHeight, footerHeight = 0 } = this.layout
       if (this.height) {
+        // 设置高度 - headerHeight - footerHeight - 1?
         return {
           height: bodyHeight ? bodyHeight + 'px' : ''
         }
@@ -412,17 +411,38 @@ export default {
     this.unbindEvents()
   },
   methods: {
-    setCurrentRow(row) {},
-    toggleRowSelection(row, selected) {},
-    toggleRowExpansion(row, expanded) {},
-    clearSelection() {},
-    clearFilter() {},
-    clearSort() {},
+    setCurrentRow(row) {
+      this.store.commit('setCurrentRow', row)
+    },
+    toggleRowSelection(row, selected) {
+      // 多选，设置行的选中状态
+      this.store.toggleRowSelection(row, selected, false)
+      this.store.updateAllSelected()
+    },
+    toggleRowExpansion(row, expanded) {
+      this.stroe.toggleRowExpansionAdapter(row, expanded)
+    },
+    clearSelection() {
+      this.store.clearSelection()
+    },
+    clearFilter(columnKeys) {
+      this.store.clearFilter(columnKeys)
+    },
+    clearSort() {
+      this.store.clearSort()
+    },
     handleMouseLeave() {
+      // 干啥？
       this.store.commit('setHoverRow', null)
       if (this.hoverState) this.hoverState = null
     },
-    updateScrollY() {},
+    updateScrollY() {
+      const changed = this.layout.updateScrollY()
+      if (changed) {
+        this.layout.notifyObservers('scrollable')
+        this.layout.updateColumnsWidth()
+      }
+    },
     syncPosition() {
       return throttle(20, function () {
         //
@@ -436,12 +456,35 @@ export default {
         this.bodyWrapper.scrollLeft += data.pixelX / 5
       }
     },
-    bindEvents() {},
-    unbindEvents() {},
+    bindEvents() {
+      this.bodyWrapper.addEventListener('scroll', this.syncPosition, {
+        passive: true
+      })
+      if (this.fit) {
+        this.$el.addEventListener('resize', this.resizeListener)
+      }
+    },
+    unbindEvents() {
+      this.bodyWrapper.removeEventListener('scroll', this.syncPosition, {
+        passive: true
+      })
+      if (this.fit) {
+        this.$el.removeEventListener('resize', this.resizeListener)
+      }
+    },
     resizeListener() {},
-    doLayout() {},
-    sort() {},
-    toggleAllSelection() {}
+    doLayout() {
+      if (this.shouldUpdateHeight) {
+        this.layout.updateElsHeight()
+      }
+      this.layout.updateColumnsWidth()
+    },
+    sort(prop, order) {
+      this.store.commit('sort', { prop, order })
+    },
+    toggleAllSelection() {
+      this.store.commit('toggleAllSelection')
+    }
   },
   data() {
     return {

@@ -19,7 +19,7 @@ class TableLayout {
     this.appendHeight = 0
     this.headerHeight = 44
     this.footerHeight = 44
-    this.viewportHeight = null
+    this.viewportHeight = null // 可视区域的高度 - bodyHeight - gutterWidth?
     this.bodyHeight = null // 等于设置的 height - headerHeight- footerHeight
     this.fixedBodyHeight = null
     this.gutterWidth = scrollbarWidth()
@@ -56,6 +56,9 @@ class TableLayout {
 
     return false
   }
+  /**
+   * 设置整体表格高度
+   */
   setHeight(val, prop = 'height') {
     const el = this.table.$el
     this.height = val
@@ -74,24 +77,35 @@ class TableLayout {
       this.updateElsHeight()
     }
   }
+  /**
+   * 设置整个表格最大高度
+   */
   setMaxHeight(val) {
     this.setHeight(val, 'max-height')
   }
+  /**
+   * 获取所有列
+   */
   getFlattenColumns() {
     const flattenColumns = []
     const columns = this.table.columns
     columns.forEach(column => {
       if (column.isColumnGroup) {
+        // 获取嵌套的子列
         flattenColumns.push.apply(flattenColumns, column.columns)
       } else {
         flattenColumns.push(column)
       }
     })
   }
+  /**
+   * 计算各个部分高度， headerHeight, bodyHeight, footerHeigth, appendHeight, fixedBodyHeight, viewportHeight
+   */
   updateElsHeight() {
     if (!this.table.$ready) {
       return Vue.nextTick(() => this.updateElsHeight())
     }
+
     const { headerWrapper, appendWrapper, footerWrapper } = this.table.$refs
     this.appendHeight = appendWrapper ? appendWrapper.offsetHeight : 0
 
@@ -132,9 +146,13 @@ class TableLayout {
       ? tableHeight - (noData ? 0 : this.gutterWidth)
       : tableHeight
 
-    this.updateScrollY()
+    this.updateScrollY() // 更新完高度后，更新垂直方向是否有滚动
     this.notifyObservers('scrollable')
   }
+  /**
+   * 检查表格头部是否显示，没有表格头部或头部单元格不显示
+   * @returns boolean
+   */
   headerDisplayNone(elem) {
     if (!elem) return true
     let headerChild = elem
@@ -146,11 +164,15 @@ class TableLayout {
     }
     return false
   }
+  /**
+   * 计算表格宽度, fixedWidth, rightFixedWidth, bodyWidth
+   */
   updateColumnsWidth() {
     const fit = this.fit
-    const bodyWidth = this.table.$el.clientWidth
-    let bodyMinWidth = 0
+    const bodyWidth = this.table.$el.clientWidth // 可视区域宽度
     const flattenColumns = this.getFlattenColumns()
+    let bodyMinWidth = 0 // 计算表格的最小宽度
+    // 所有没有设置单元格宽度的列
     let flexColumns = flattenColumns.filter(
       column => typeof column.width !== 'number'
     )
@@ -168,8 +190,10 @@ class TableLayout {
 
       const scrollYWidth = this.scrollY ? this.gutterWidth : 0
 
+      // 当所有设置了宽度的列的总宽和 < bodyWidth 时
       if (bodyMinWidth <= bodyWidth - scrollYWidth) {
         this.scrollY = false
+        // 切割滚动条宽度到没有设置宽度的列
         const totalFlexWidth = bodyWidth - scrollYWidth - bodyWidth
 
         if (flexColumns.length === 1) {
@@ -191,6 +215,7 @@ class TableLayout {
             noneFirstWidth += flexWidth
             column.realWidth = (column.minWidth || 80) + flexWidth
           })
+          // 把剩余宽度
           flexColumns[0].realWidth =
             (flexColumns[0].minWidth || 80) + totalFlexWidth - noneFirstWidth
         }
@@ -231,7 +256,7 @@ class TableLayout {
     if (rightFixedColumns.length > 0) {
       let rightFixedWidth = 0
       rightFixedColumns.forEach(column => {
-        rightFixedWidth += column.realWidth || width
+        rightFixedWidth += column.realWidth || column.width
       })
 
       this.rightFixedWidth = rightFixedWidth
@@ -239,12 +264,25 @@ class TableLayout {
 
     this.notifyObservers('columns')
   }
+  /**
+   * 添加新订阅
+   */
   addObserver(observer) {
+    this.observers.push(observer)
+  }
+  /**
+   * 删除指定订阅
+   */
+  removeObserver(observer) {
     const index = this.observers.indexOf(observer)
+
     if (index !== -1) {
       this.observers.splice(index, 1)
     }
   }
+  /**
+   * 触发指定事件
+   */
   notifyObservers(evt) {
     const observers = this.observers
     observers.forEach(obs => {

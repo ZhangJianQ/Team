@@ -61,7 +61,8 @@
                     :sum-text="sumText"
                     :summary-method="summaryMethod"
                     :default-sort="defaultSort"
-                    :style="{ width: layout.bodyWidth ? layout.bodyWidth + 'px' : '' }"></table-footer>
+                    :style="{ width: layout.bodyWidth ? layout.bodyWidth + 'px' : '' }">
+      </table-footer>
     </div>
     <div v-if="fixedColumns.length > 0"
          v-mousewheel="handleFixedMousewheel"
@@ -360,6 +361,18 @@ export default {
             : ''
         }
       }
+    },
+    emptyBlockStyle() {
+      let height = '100%'
+
+      if (this.data && this.data.length) return null
+      if (this.layout.appendHeight) {
+        height = `calc(100%-${this.layout.appendHeight}px)`
+      }
+      return {
+        width: this.bodyWidth,
+        height
+      }
     }
   },
   watch: {
@@ -420,7 +433,7 @@ export default {
       this.store.updateAllSelected()
     },
     toggleRowExpansion(row, expanded) {
-      this.stroe.toggleRowExpansionAdapter(row, expanded)
+      this.store.toggleRowExpansionAdapter(row, expanded)
     },
     clearSelection() {
       this.store.clearSelection()
@@ -448,7 +461,12 @@ export default {
         //
       })
     },
-    handleFixedMousewheel() {},
+    handleFixedMousewheel(evt, data) {
+      const bodyWrapper = this.bodyWrapper
+      if (Math.abs(data.spinY) > 0) {
+        //
+      }
+    },
     // 设置横向滚动
     handleHeaderFooterMousewheel(evt, data) {
       const { pixelX, pixelY } = data

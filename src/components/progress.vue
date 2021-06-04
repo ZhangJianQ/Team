@@ -104,6 +104,9 @@ export default {
         return 0
       }
     },
+    /**
+     * 生成圆环路径
+     */
     trackPath() {
       const radius = this.radius
       const isDashboard = this.type === 'dashboard'

@@ -26,6 +26,7 @@ class TableLayout {
 
     for (let name in options) {
       if (options.hasOwnProperty(name)) {
+        // 非继承属性
         this[name] = options[name]
       }
     }

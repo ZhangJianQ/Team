@@ -131,7 +131,7 @@
       <div v-if="showHeader"
            class="table__fixed-header-wrapper"
            ref="rightFixedHeaderWrapper">
-        <table-header ref="rightFixedHeader"
+        <table-header ref="rightFixedTableHeader"
                       fixed="right"
                       :border="border"
                       :store="store"
@@ -193,7 +193,9 @@ import Mousewheel from '@/directives/mousewheel'
 import TableHeader from './table-header'
 import TableBody from './table-body'
 import TableFooter from './table-footer'
+import TableLayout from './table-layout'
 import { debounce, throttle } from 'throttle-debounce'
+import { mapStates, createStore } from './store/helper'
 let seed = 1
 export default {
   name: 'ElTable',
@@ -373,7 +375,14 @@ export default {
         width: this.bodyWidth,
         height
       }
-    }
+    },
+    ...mapStates({
+      selection: 'selection',
+      columns: 'columns',
+      tableData: 'data',
+      fixedColumns: 'fixedColumns',
+      rightFixedColumns: 'rightFixedColumns'
+    })
   },
   watch: {
     height: {
@@ -418,7 +427,25 @@ export default {
   },
   mounted() {
     this.bindEvents()
+    this.store.updateColumns()
     this.doLayout()
+
+    this.resizeState = {
+      width: this.$el.offsetWidth,
+      height: this.$el.offsetHeight
+    }
+
+    this.store.states.columns.forEach(column => {
+      if (column.filteredValue && column.filteredValue.length) {
+        this.store.commit('filterChange', {
+          column,
+          values: column.filteredValue,
+          silent: true
+        })
+      }
+    })
+
+    this.$ready = true
   },
   destroyed() {
     this.unbindEvents()
@@ -456,15 +483,64 @@ export default {
         this.layout.updateColumnsWidth()
       }
     },
+    /**
+     * 表格滚动处理程序，同步表格的滚动距离表头，底部，左侧固定表格，右侧固定表格
+     */
     syncPosition() {
       return throttle(20, function () {
-        //
+        const {
+          scrollLeft,
+          scrollTop,
+          offsetWidth,
+          scrollWidth
+        } = this.bodyWrapper
+        const {
+          headerWrapper,
+          footerWrapper,
+          fixedBodyWrapper,
+          rightFixedWrapper
+        } = this.$refs
+
+        if (headerWrapper) {
+          headerWrapper.scrollLeft = scrollLeft
+        }
+        if (footerWrapper) {
+          footerWrapper.scrollLeft = scrollLeft
+        }
+        if (fixedBodyWrapper) {
+          fixedBodyWrapper.scrollTop = scrollTop
+        }
+        if (rightFixedWrapper) {
+          rightFixedWrapper.scrollTop = scrollTop
+        }
+
+        const maxScrollLeftPosition = scrollWidth - offsetWidth - 1
+
+        if (scrollLeft >= maxScrollLeftPosition) {
+          this.scrollPosition = 'right'
+        } else if (scrollLeft === 0) {
+          this.scrollPosition = 'left'
+        } else {
+          this.scrollPosition = 'middle'
+        }
       })
     },
     handleFixedMousewheel(evt, data) {
       const bodyWrapper = this.bodyWrapper
       if (Math.abs(data.spinY) > 0) {
-        //
+        const currentScrollTop = bodyWrapper.scrollTop
+        if (data.pixelX < 0 && currentScrollTop !== 0) {
+          evt.preventDefault()
+        }
+        if (
+          data.pixelY > 0 &&
+          bodyWrapper.scrollHeight - bodyWrapper.clientHeight < currentScrollTop
+        ) {
+          evt.preventDefault()
+        }
+        bodyWrapper.scrollTop += Math.ceil(data.pixelY / 5)
+      } else {
+        bodyWrapper.scrollLeft += Math.ceil(data.pixelX / 5)
       }
     },
     // 设置横向滚动
@@ -474,6 +550,9 @@ export default {
         this.bodyWrapper.scrollLeft += data.pixelX / 5
       }
     },
+    /**
+     * 绑定表格主体的scroll事件和表格的resize事件
+     */
     bindEvents() {
       this.bodyWrapper.addEventListener('scroll', this.syncPosition, {
         passive: true
@@ -490,7 +569,35 @@ export default {
         this.$el.removeEventListener('resize', this.resizeListener)
       }
     },
-    resizeListener() {},
+    /**
+     * resize 事件处理器
+     */
+    resizeListener() {
+      if (!this.$ready) return
+
+      let shouldUpdateLayout = false
+      const el = this.$el
+      const { width: oldWidth, height: oldHeight } = this.resizeState
+      const width = el.offsetWidth
+      const height = el.offsetHeight
+
+      if (oldWidth !== width) {
+        shouldUpdateLayout = true
+      }
+
+      if ((this.height || this.shouldUpdateHeight) && oldHeight !== height) {
+        shouldUpdateLayout = true
+      }
+
+      if (shouldUpdateLayout) {
+        this.resizeState.width = width
+        this.resizeState.height = height
+        this.doLayout()
+      }
+    },
+    /**
+     * 修正高度
+     */
     doLayout() {
       if (this.shouldUpdateHeight) {
         this.layout.updateElsHeight()
@@ -505,8 +612,40 @@ export default {
     }
   },
   data() {
+    const {
+      hasChildren = 'hasChildren',
+      children = 'children'
+    } = this.treeProps
+
+    // 初始化表格数据管理器，用于在多个组件间共享数据
+    this.store = createStore(this, {
+      rowKey: this.rowKey,
+      defaultExpandAll: this.defaultExpandAll,
+      selectedOnIndeterminate: this.selectedOnIndeterminate,
+      indent: this.indent,
+      lazy: this.lazy,
+      lazyColumnIdentifier: hasChildren,
+      childrenColumnName: children
+    })
+
+    // 初始化表格布局
+    const layout = new TableLayout({
+      store: this.store,
+      table: this,
+      fit: this.fit,
+      showHeader: this.showHeader
+    })
     return {
-      resizeProxyVisible: false
+      layout,
+      isHidden: false,
+      renderExpanded: null,
+      resizeProxyVisible: false,
+      resizeState: {
+        width: null,
+        height: null
+      },
+      isGroup: false,
+      scrollPosition: 'left'
     }
   }
 }

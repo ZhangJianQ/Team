@@ -283,3 +283,17 @@ export function walkTreeNode(
     }
   })
 }
+
+// 迭代返回所有的列
+export const getAllColumns = columns => {
+  const result = []
+  columns.forEach(column => {
+    if (column.children) {
+      result.push(column)
+      result.push.apply(result, getAllColumns(column.children))
+    } else {
+      result.push(column)
+    }
+  })
+  return result
+}

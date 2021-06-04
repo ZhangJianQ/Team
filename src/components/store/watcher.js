@@ -5,7 +5,8 @@ import {
   getColumnById,
   getColumnByKey,
   orderBy,
-  toggleRowStatus
+  toggleRowStatus,
+  getAllColumns as doFlattenColumns
 } from '../table-util'
 import expand from './expand'
 import current from './current'
@@ -22,20 +23,6 @@ const sortData = (data, states) => {
     sortingColumn.sortMethod,
     sortingColumn.sortBy
   )
-}
-
-// 迭代返回所有的列
-const doFlattenColumns = columns => {
-  const result = []
-  columns.forEach(column => {
-    if (column.children) {
-      result.push.apply(result, doFlattenColumns(column.children))
-    } else {
-      result.push(column)
-    }
-  })
-
-  return result
 }
 
 export default Vue.extend({

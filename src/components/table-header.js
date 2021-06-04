@@ -1,11 +1,57 @@
 import Vue from 'vue'
 import { hasClass, addClass, removeClass } from '@/utils/dom'
+import LayoutObserver from './layout-observer'
+import { mapStates } from './store/helper'
+import { getAllColumns } from './table-util'
 
-const getAllColumns = columns => {}
-const convertToRows = originColumns => {}
+const convertToRows = originColumns => {
+  let maxLevel = 1
+  const traverse = (column, parent) => {
+    if (parent) {
+      column.level = parent.level + 1
+      if (maxLevel < column.level) {
+        maxLevel = column.level
+      }
+    }
+
+    if (column.children) {
+      let colSpan = 0
+      column.children.forEach(subcolumn => {
+        traverse(subcolumn, column)
+        colSpan += subcolumn.colSpan
+      })
+      column.colSpan = colSpan
+    } else {
+      column.colSpan = 1
+    }
+  }
+
+  originColumns.forEach(column => {
+    column.level = 1
+    traverse(column)
+  })
+
+  const rows = []
+  for (let i = 0; i < maxLevel; i++) {
+    rows.push([])
+  }
+
+  const allColumns = getAllColumns(originColumns)
+  allColumns.forEach(column => {
+    if (!column.children) {
+      column.rowSpan = maxLevel - column.level + 1
+    } else {
+      column.rowSpan = 1
+    }
+    rows[column.level - 1].push(column)
+  })
+
+  return rows
+}
 
 export default {
   name: 'TableHeader',
+  mixins: [LayoutObserver],
   props: {
     fixed: String,
     store: {
@@ -23,6 +69,15 @@ export default {
     }
   },
   computed: {
+    ...mapStates({
+      columns: 'columns',
+      isAllSelected: 'isAllSelected',
+      leftFixedLeafCount: 'fixedLeafColumnsLength',
+      rightFixedLeafCount: 'rightFixedLeafColumnsLength',
+      columnsCount: states => states.columns.length,
+      leftFixedCount: states => states.fixedColumns.length,
+      rightFixedCount: states => states.rightFixedColumns.length
+    }),
     table() {
       return this.$parent
     },
@@ -49,19 +104,222 @@ export default {
     }
   },
   methods: {
-    isCellHidden(index, columns) {},
-    getHeaderRowStyle(rowIndex) {},
-    getHeaderRowClass() {},
-    getHeaderCellStyle(rowIndex, columnIndex, row, column) {},
-    getHeaderCellClass(rowIndex, columnIndex, row, column) {},
-    toggleAllSelection(evt) {},
+    isCellHidden(index, columns) {
+      let start = 0
+      for (let i = 0; i < index; i++) {
+        start += columns[i].colSpan
+      }
+      const after = start + columns[index].colSpan - 1
+      if (this.fixed === true || this.fixed === 'left') {
+        return after >= this.leftFixedLeafCount
+      } else if (this.fixed === 'right') {
+        return start < this.columnsCount - this.rightFixedLeafCount
+      } else {
+        return (
+          after < this.leftFixedLeafCount ||
+          start >= this.columnsCount - this.rightFixedLeafCount
+        )
+      }
+    },
+    getHeaderRowStyle(rowIndex) {
+      const style = this.table.headerRowStyle
+      if (typeof style === 'function') {
+        return style.call(null, { rowIndex })
+      }
+      return style
+    },
+    getHeaderRowClass(rowIndex) {
+      const classes = []
+      const className = this.table.headerRowClassName
+      if (typeof className === 'string') {
+        classes.push(className)
+      } else if (typeof className === 'function') {
+        className.push(className.call(null, { rowIndex }))
+      }
+      return classes.join(' ')
+    },
+    getHeaderCellStyle(rowIndex, columnIndex, row, column) {
+      const style = this.table.headerCellStyle
+      if (typeof style === 'function') {
+        return style.call(null, {
+          rowIndex,
+          columnIndex,
+          row,
+          column
+        })
+      }
+      return style
+    },
+    getHeaderCellClass(rowIndex, columnIndex, row, column) {
+      const classes = [
+        column.id,
+        column.order,
+        column.headerAlign,
+        column.className
+      ]
+      if (rowIndex === 0 && this.isCellHidden(columnIndex, row)) {
+        classes.push('is-hidden')
+      }
+
+      if (!column.children) {
+        classes.push('is-leaf')
+      }
+
+      if (column.sortable) {
+        classes.push('is-sortable')
+      }
+
+      const className = this.table.headerCellClassName
+      if (typeof className === 'string') {
+        classes.push(className)
+      } else if (typeof className === 'function') {
+        classes.push(
+          className.call(null, {
+            rowIndex,
+            columnIndex,
+            row,
+            column
+          })
+        )
+      }
+
+      return classes.join(' ')
+    },
+    toggleAllSelection(evt) {
+      evt.stopPropagation()
+      this.store.commit('toggleAllSelection')
+    },
     handleFilterClick(evt, column) {},
-    handleHeaderClick(evt, column) {},
-    handleHeaderContextMenu(evt, column) {},
-    handleMouseDown(evt, column) {},
-    handleMouseMove(evt, column) {},
-    handleMouseOut() {},
-    toggleOrder({ order, sortOrders }) {},
+    handleHeaderClick(evt, column) {
+      if (!column.filters && column.sortable) {
+        this.handleSortClick(evt, column)
+      } else if (column.filterable && !column.sortable) {
+        this.handleFilterClick(evt, column)
+      }
+
+      this.$parent.$emit('header-click', column, evt)
+    },
+    handleHeaderContextMenu(evt, column) {
+      this.$parent.$emit('header-contentmenu', column, evt)
+    },
+    /**
+     * 拖动改变列宽
+     */
+    handleMouseDown(evt, column) {
+      // 嵌套表头不能改变列宽
+      if (column.children && column.length > 0) return
+      if (this.dragginColumn && this.border) {
+        this.dragging = true
+        this.$parent.resizeProxyVisible = true
+
+        const table = this.$parent
+        const tableEl = table.$el
+        const tableLeft = tableEl.getBoundingClientRect().left
+        const columnEl = this.$el.querySelector(`th${column.id}`)
+        const columnRect = columnEl.getBoundingClientRect()
+        const minLeft = columnRect.left - tableLeft + 30
+
+        addClass(columnEl, 'noclick')
+
+        this.dragState = {
+          startMouseLeft: evt.clientX,
+          startLeft: columnRect.right - tableLeft,
+          startColumnLeft: columnRect.left - tableLeft,
+          tableLeft
+        }
+
+        const resizeProxy = table.$refs.resizeProxy
+        resizeProxy.style.left = this.dragState.startLeft + 'px'
+
+        document.onselectstart = function() {
+          return false
+        }
+        document.ondragstart = function() {
+          return false
+        }
+
+        const handleMouseMove = evt => {
+          const deltaLeft = evt.clientX - this.dragState.startMouseLeft
+          const proxyLeft = this.dragState.startLeft + deltaLeft
+
+          resizeProxy.style.left = Math.max(minLeft, proxyLeft) + 'px'
+        }
+
+        const handleMouseUp = evt => {
+          if (this.dragging) {
+            const { startColumnLeft, startLeft } = this.dragState
+            const finalLeft = parseInt(resizeProxy.style.left, 10)
+            const columnWidth = finalLeft - startColumnLeft
+            column.width = column.realWidth = columnWidth
+
+            table.$emit(
+              'header-dragend',
+              column.width,
+              startLeft - startColumnLeft,
+              column,
+              evt
+            )
+            this.store.scheduleLayout()
+            document.body.style.cursor = ''
+            this.dragging = false
+            this.dragginColumn = null
+            this.dragState = {}
+            this.resizeProxyVisible = false
+          }
+
+          document.removeEventListener('mousemove', handleMouseMove)
+          document.removeEventListener('mouseup', handleMouseUp)
+          document.onselectstart = null
+          document.ondragstart = null
+
+          setTimeout(() => {
+            removeClass(columnEl, 'noclick')
+          }, 0)
+        }
+
+        document.addEventListener('mousemove', handleMouseMove)
+        document.addEventListener('mouseup', handleMouseUp)
+      }
+    },
+    handleMouseMove(evt, column) {
+      if (column.children && column.children.length > 0) return
+      let target = evt.target
+      while (target && target.tagname !== 'TH') {
+        target = target.parentNode
+      }
+
+      if (!column || !column.resizable) return
+
+      if (!this.dragging && this.border) {
+        let rect = target.getBoundingClientRect()
+        const bodyStyle = document.body.style
+
+        if (rect.width > 12 && rect.right - evt.pageX < 8) {
+          bodyStyle.cursor = 'col-resize'
+
+          if (hasClass(target, 'is-sortable')) {
+            target.style.cursor = 'col-reisze'
+          }
+          this.dragginColumn = column
+        } else if (!this.dragging) {
+          bodyStyle.cursor = ''
+          if (hasClass(target, 'is-sortable')) {
+            target.style.cursor = 'pointer'
+          }
+          this.dragginColumn = null
+        }
+      }
+    },
+    handleMouseOut() {
+      document.body.style.cursor = ''
+    },
+    toggleOrder({ order, sortOrders }) {
+      if (order === '') {
+        return sortOrders[0]
+      }
+      const index = sortOrders.index(order || null)
+      return sortOrders[index > sortOrders.length - 2 ? 0 : index + 1]
+    },
     handleSortClick(evt, column, givenOrder) {}
   },
   render(h) {

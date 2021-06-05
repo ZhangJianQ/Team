@@ -20,12 +20,12 @@ export default {
     }
   },
   mounted() {
-    this.onColumnChange(this.tableLayout)
+    this.onColumnsChange(this.tableLayout)
     this.onScrollableChange(this.tableLayout)
   },
   updated() {
     if (this.__updated__) return
-    this.onColumnChange(this.tableLayout)
+    this.onColumnsChange(this.tableLayout)
     this.onScrollableChange(this.tableLayout)
     this.__updated__ = true
   },
@@ -33,7 +33,7 @@ export default {
     /**
      * 设置列宽（表头）
      */
-    onColumnChange(layout) {
+    onColumnsChange(layout) {
       const cols = this.$el.querySelectorAll('colgroup>col')
       if (!cols.length) return
       const flattenColumns = layout.getFlattenColumns()

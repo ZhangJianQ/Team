@@ -51,7 +51,7 @@ export default {
       hasExpandColumn: states =>
         states.columns.some(({ type }) => type === 'expand'),
       firstDefaultColumnIndex() {
-        return arrayFindIndex(this.columns, ({ type }) => type === 'default')
+        return this.columns.findIndex(({ type }) => type === 'default')
       }
     })
   },
@@ -265,7 +265,7 @@ export default {
     rowRender(row, $index, treeRowData) {
       const { treeIndent, columns, firstDefaultColumnIndex } = this
       // 隐藏的列
-      const columnsHidden = colums.map((column, index) =>
+      const columnsHidden = columns.map((column, index) =>
         this.isColumnHidden(index)
       )
       const rowClasses = this.getRowClass(row, $index)
@@ -297,8 +297,8 @@ export default {
             const { rowspan, colspan } = this.getSpan(
               row,
               column,
-              rowIndex,
-              columnIndex
+              $index,
+              cellIndex
             )
 
             if (!rowspan || !colspan) {
@@ -388,8 +388,6 @@ export default {
             </tr>
           ]
         ]
-      } else if (Object.keys(treeData).length) {
-        // 树表格渲染方法
       } else {
         // 普通表格渲染方法
         return this.rowRender(row, $index)

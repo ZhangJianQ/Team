@@ -203,7 +203,7 @@ export default {
       this.$parent.$emit('header-contentmenu', column, evt)
     },
     /**
-     * 拖动改变列宽
+     * 拖动显示拖动线和位置，拖放结束修改列宽
      */
     handleMouseDown(evt, column) {
       // 嵌套表头不能改变列宽
@@ -215,7 +215,7 @@ export default {
         const table = this.$parent
         const tableEl = table.$el
         const tableLeft = tableEl.getBoundingClientRect().left
-        const columnEl = this.$el.querySelector(`th${column.id}`)
+        const columnEl = this.$el.querySelector(`th.${column.id}`)
         const columnRect = columnEl.getBoundingClientRect()
         const minLeft = columnRect.left - tableLeft + 30
 
@@ -264,7 +264,7 @@ export default {
             this.dragging = false
             this.dragginColumn = null
             this.dragState = {}
-            this.resizeProxyVisible = false
+            this.$parent.resizeProxyVisible = false
           }
 
           document.removeEventListener('mousemove', handleMouseMove)
@@ -281,10 +281,13 @@ export default {
         document.addEventListener('mouseup', handleMouseUp)
       }
     },
+    /**
+     * 设置被拖动的列和样式
+     */
     handleMouseMove(evt, column) {
       if (column.children && column.children.length > 0) return
       let target = evt.target
-      while (target && target.tagname !== 'TH') {
+      while (target && target.tagName !== 'TH') {
         target = target.parentNode
       }
 

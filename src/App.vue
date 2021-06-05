@@ -1,31 +1,58 @@
 <template>
   <div id="app">
-    <el-tabs v-model="activeName"
-             type="card">
-      <tab-pane label="用户管理"
-                name="first">用户管理</tab-pane>
-      <tab-pane label="配置管理"
-                name="second">配置管理</tab-pane>
-      <tab-pane label="角色管理"
-                name="third">角色管理</tab-pane>
-      <tab-pane label="定时任务补偿"
-                name="fourth">定时任务补偿</tab-pane>
-    </el-tabs>
+    <el-table :data="tableData"
+              stripe
+              border
+              style="width: 100%">
+      <el-table-column prop="date"
+                       label="日期"
+                       width="180">
+      </el-table-column>
+      <el-table-column prop="name"
+                       label="姓名"
+                       width="180">
+      </el-table-column>
+      <el-table-column prop="address"
+                       label="地址">
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
 <script>
-import ElTabs from '@/components/tabs'
-import TabPane from '@/components/tab-pane'
+import ElTable from '@/components/table'
+import ElTableColumn from '@/components/table-column'
 export default {
   components: {
-    ElTabs,
-    TabPane
+    ElTable,
+    ElTableColumn
   },
   data() {
     return {
       pwd: '12346',
-      activeName: 'first'
+      activeName: 'first',
+      tableData: [
+        {
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        },
+        {
+          date: '2016-05-04',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1517 弄'
+        },
+        {
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1519 弄'
+        },
+        {
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1516 弄'
+        }
+      ]
     }
   },
   methods: {

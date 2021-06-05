@@ -1,37 +1,30 @@
 <template>
-  <div
-    class="form-item"
-    :class="{
+  <div class="form-item"
+       :class="{
       'is-error': validateState === 'error',
       'is-validating': validateState === 'validating',
       'is-suceess': validateState === 'success',
       'is-required': isRequired || required
-    }"
-  >
-    <label
-      for=""
-      class="form-item__label"
-      :style="labelStyle"
-      v-if="label || $slots.label"
-    >
+    }">
+    <label for=""
+           class="form-item__label"
+           :style="labelStyle"
+           v-if="label || $slots.label">
       <slot name="label"> {{ label + form.labelSuffix }}</slot>
     </label>
-    <div class="form-item__content" :style="contentStyle">
+    <div class="form-item__content"
+         :style="contentStyle">
       <slot></slot>
-      <slot
-        v-if="validateState === 'error' && showMessage && form.showMessage"
-        name="error"
-        :error="validateMessage"
-      >
-        <div
-          class="form-item__error"
-          :class="{
+      <slot v-if="validateState === 'error' && showMessage && form.showMessage"
+            name="error"
+            :error="validateMessage">
+        <div class="form-item__error"
+             :class="{
             'form-itemm__error--inline':
               typeof inlineMessage === 'boolean'
                 ? inlineMessage
                 : (elForm && elForm.inlineMessage) || false
-          }"
-        >
+          }">
           {{ validateMessage }}
         </div>
       </slot>
@@ -42,31 +35,8 @@
 <script>
 import Emitter from '../mixins/emitter'
 import AsyncValidator from 'async-validator'
-function getPropByPath(obj, path, strict) {
-  let tempObj = obj
-  path = path.replace(/\[(\w+)\]/g, '.$1')
-  path = path.replace(/^\./, '')
+import { getPropByPath } from '@/utils/util'
 
-  let keyArr = path.split('.')
-  let i = 0
-  for (let len = keyArr.length; i < len - 1; ++i) {
-    if (!tempObj && !strict) break
-    let key = keyArr[i]
-    if (key in tempObj) {
-      tempObj = tempObj[key]
-    } else {
-      if (strict) {
-        throw new Error('please transfer a valid prop path to form item!')
-      }
-      break
-    }
-  }
-  return {
-    o: tempObj,
-    k: keyArr[i],
-    v: tempObj ? tempObj[keyArr[i]] : null
-  }
-}
 export default {
   name: 'FormItem',
   componentName: 'FormItem',

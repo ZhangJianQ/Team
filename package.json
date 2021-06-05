@@ -60,6 +60,7 @@
     "@babel/runtime": "^7.13.10",
     "ant-design-vue": "^1.7.5",
     "core-js": "^3.10.2",
+    "normalize-wheel": "^1.0.1",
     "throttle-debounce": "^3.0.1",
     "vue": "^2.6.12",
     "vue-template-compiler": "^2.6.12"

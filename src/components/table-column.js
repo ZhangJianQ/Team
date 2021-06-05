@@ -15,6 +15,7 @@ export default {
       default: 'default'
     },
     label: String,
+    index: [Number, Function],
     className: String,
     labelClassName: String,
     property: String,
@@ -22,12 +23,6 @@ export default {
     width: {},
     minWidth: {},
     renderHeader: Function,
-    sortable: {
-      type: [Boolean, String],
-      default: false
-    },
-    sortMethod: Function,
-    sortBy: [String, Function, Array],
     resizable: {
       type: Boolean,
       default: true
@@ -39,8 +34,10 @@ export default {
     showOverflowTooltip: Boolean,
     fixed: [Boolean, String],
     formatter: Function,
+    // 选中 prop
     selectable: Function,
     reserveSelection: Boolean,
+    // 过滤 prop
     filterMethod: Function,
     filteredValue: Array,
     filters: Array,
@@ -49,7 +46,13 @@ export default {
       type: Boolean,
       default: true
     },
-    index: [Number, Function],
+    // 排序 prop
+    sortable: {
+      type: [Boolean, String],
+      default: false
+    },
+    sortMethod: Function,
+    sortBy: [String, Function, Array],
     sortOrders: {
       type: Array,
       default() {
@@ -69,6 +72,9 @@ export default {
     }
   },
   computed: {
+    /**
+     * 所属table的引用
+     */
     owner() {
       let parent = this.$parent
       while (parent && !parent.tableId) {
@@ -98,6 +104,9 @@ export default {
     }
   },
   methods: {
+    /**
+     * 复制 props 属性和数据
+     */
     getPropsData(...props) {
       return props.reduce((prev, cur) => {
         if (Array.isArray(cur)) {
@@ -139,11 +148,14 @@ export default {
 
       return column
     },
+    /**
+     * 包装列的渲染器（方法）renderHeader, renderCell
+     */
     setColumnRenders(column) {
       if (this.renderHeader) {
         console.log()
       } else if (column.type !== 'selection') {
-        column.reanderHeader = (h, scope) => {
+        column.renderHeader = (h, scope) => {
           const renderHeader = this.$scopedSlots.header
 
           return renderHeader ? renderHeader(scope) : column.label
@@ -193,8 +205,58 @@ export default {
       }
       return column
     },
-    registerNormalWatchers() {},
-    registerComplexWwatchers() {}
+    registerNormalWatchers() {
+      const props = [
+        'label',
+        'property',
+        'filters',
+        'filterMultiple',
+        'sortable',
+        'index',
+        'formatter',
+        'className',
+        'labelClassName'
+      ]
+      const aliases = {
+        prop: 'property',
+        realAlign: 'align',
+        realHeaderAlign: 'headerAlign',
+        realWidth: 'width'
+      }
+
+      const allAliases = props.reduce((prev, cur) => {
+        prev[cur] = cur
+        return prev
+      }, aliases)
+
+      Object.keys(allAliases).forEach(key => {
+        const columnKey = aliases[key]
+
+        this.$watch(key, newVal => {
+          this.columnConfig[columnKey] = newVal
+        })
+      })
+    },
+    registerComplexWwatchers() {
+      const props = ['fixed']
+      const aliases = {
+        realWidth: 'width',
+        realMinWidth: 'minWidth'
+      }
+      const allAliases = props.reduce((prev, cur) => {
+        prev[cur] = cur
+        return prev
+      }, aliases)
+
+      Object.keys(allAliases).forEach(key => {
+        const columnKey = aliases[key]
+        this.$watch(key, newVal => {
+          this.columnConfig[columnKey] = newVal
+          const updateColumns = columnKey === 'fixed'
+          this.owner.store.scheduleLayout(updateColumns)
+        })
+      })
+    }
   },
   beforeCreate() {
     this.row = {}
@@ -286,7 +348,15 @@ export default {
       this.isSubColumn ? parent.columnConfig : null
     )
   },
-  destoryed() {},
+  destoryed() {
+    if (!this.$parent) return
+    const parent = this.$parent
+    this.owner.store.commit(
+      'removeColumn',
+      this.columnConfig,
+      this.isSubColumn ? parent.columnConfig : null
+    )
+  },
   render(h) {
     return h('div', this.$slots.default)
   }

@@ -98,6 +98,7 @@ class TableLayout {
         flattenColumns.push(column)
       }
     })
+    return flattenColumns
   }
   /**
    * 计算各个部分高度， headerHeight, bodyHeight, footerHeigth, appendHeight, fixedBodyHeight, viewportHeight
@@ -195,7 +196,7 @@ class TableLayout {
       if (bodyMinWidth <= bodyWidth - scrollYWidth) {
         this.scrollY = false
         // 切割滚动条宽度到没有设置宽度的列
-        const totalFlexWidth = bodyWidth - scrollYWidth - bodyWidth
+        const totalFlexWidth = bodyWidth - scrollYWidth - bodyMinWidth
 
         if (flexColumns.length === 1) {
           flexColumns[0].realWidth =

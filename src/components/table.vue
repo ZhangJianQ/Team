@@ -32,13 +32,13 @@
     <div class="table__body-wrapper"
          ref="bodyWrapper"
          :style="[bodyHeight]">
-      <table-body :content="content"
+      <table-body :context="context"
                   :store="store"
                   :stripe="stripe"
                   :row-class-name="rowClassName"
                   :row-style="rowStyle"
                   :highlight="highlightCurrentRow"
-                  :style="{ width: bodyWdith }"></table-body>
+                  :style="{ width: bodyWidth }"></table-body>
       <div class="table__empty-block"
            v-if="!data || data.length === 0">
         <span class="table__empty-text">
@@ -205,6 +205,7 @@ export default {
       type: Array,
       defaultL: () => []
     },
+    context: {},
     // 样式属性
     size: String,
     width: [String, Number],
@@ -422,7 +423,7 @@ export default {
   created() {
     this.tableId = 'table-' + seed++
     this.debouncedUpdateLayout = debounce(50, () => {
-      this.doLayout
+      this.doLayout()
     })
   },
   mounted() {
@@ -488,12 +489,8 @@ export default {
      */
     syncPosition() {
       return throttle(20, function () {
-        const {
-          scrollLeft,
-          scrollTop,
-          offsetWidth,
-          scrollWidth
-        } = this.bodyWrapper
+        const { scrollLeft, scrollTop, offsetWidth, scrollWidth } =
+          this.bodyWrapper
         const {
           headerWrapper,
           footerWrapper,
@@ -612,10 +609,8 @@ export default {
     }
   },
   data() {
-    const {
-      hasChildren = 'hasChildren',
-      children = 'children'
-    } = this.treeProps
+    const { hasChildren = 'hasChildren', children = 'children' } =
+      this.treeProps
 
     // 初始化表格数据管理器，用于在多个组件间共享数据
     this.store = createStore(this, {
@@ -650,3 +645,28 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.table__row--striped {
+  td {
+    background-color: #fafafa;
+  }
+}
+
+.table--border {
+  th,
+  td {
+    border-right: 1px solid #ebeef5;
+  }
+}
+
+.table__column-resize-proxy {
+  position: absolute;
+  left: 200px;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px solid #ebeef5;
+  z-index: 10;
+}
+</style>

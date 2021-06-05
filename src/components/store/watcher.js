@@ -33,6 +33,7 @@ export default Vue.extend({
         data: [],
         isComplex: false,
         _columns: [],
+        columns: [],
         originColumns: [],
         fixedColumns: [],
         rightFixedColumns: [],
@@ -114,7 +115,7 @@ export default Vue.extend({
       if (needUpdateColumns) {
         this.updateColumns()
       }
-      this.table.debounceUpdateLayout()
+      this.table.debouncedUpdateLayout()
     },
     isSelected(row) {
       const { selection = [] } = this.states

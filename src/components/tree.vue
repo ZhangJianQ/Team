@@ -327,6 +327,7 @@ export default {
 
     this.root = this.store.root
 
+    // 拖动
     let dragState = this.dragState
     this.$on('tree-node-drag-start', (evt, treeNode) => {
       if (

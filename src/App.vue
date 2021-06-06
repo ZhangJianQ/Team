@@ -1,66 +1,102 @@
 <template>
   <div id="app">
-    <el-table :data="tableData"
-              stripe
-              border
-              style="width: 100%">
-      <el-table-column prop="date"
-                       label="日期"
-                       width="180">
-      </el-table-column>
-      <el-table-column prop="name"
-                       label="姓名"
-                       width="180">
-      </el-table-column>
-      <el-table-column prop="address"
-                       label="地址">
-      </el-table-column>
-    </el-table>
+    <el-tree show-checkbox
+             :data="data"
+             :props="defaultProps"
+             node-key="id"
+             @node-click="handleNodeClick"></el-tree>
   </div>
 </template>
 
 <script>
-import ElTable from '@/components/table'
-import ElTableColumn from '@/components/table-column'
+import ElTree from '@/components/tree'
 export default {
   components: {
-    ElTable,
-    ElTableColumn
+    ElTree
   },
   data() {
     return {
       pwd: '12346',
       activeName: 'first',
-      tableData: [
+      data: [
         {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
+          id: 1,
+          label: '一级 1',
+          children: [
+            {
+              id: 2,
+              label: '二级 1-1',
+              children: [
+                {
+                  id: 3,
+                  label: '三级 1-1-1'
+                }
+              ]
+            }
+          ]
         },
         {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
+          id: 4,
+          label: '一级 2',
+          children: [
+            {
+              id: 5,
+              label: '二级 2-1',
+              children: [
+                {
+                  id: 6,
+                  label: '三级 2-1-1'
+                }
+              ]
+            },
+            {
+              id: 7,
+              label: '二级 2-2',
+              children: [
+                {
+                  id: 8,
+                  label: '三级 2-2-1'
+                }
+              ]
+            }
+          ]
         },
         {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        },
-        {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
+          id: 9,
+          label: '一级 3',
+          children: [
+            {
+              id: 10,
+              label: '二级 3-1',
+              children: [
+                {
+                  id: 11,
+                  label: '三级 3-1-1'
+                }
+              ]
+            },
+            {
+              id: 12,
+              label: '二级 3-2',
+              children: [
+                {
+                  id: 13,
+                  label: '三级 3-2-1'
+                }
+              ]
+            }
+          ]
         }
-      ]
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      }
     }
   },
   methods: {
-    showMessage() {
-      Notification({
-        title: '提示',
-        message: '这是一条不会自动关闭的消息'
-      })
+    handleNodeClick() {
+      //
     }
   }
 }

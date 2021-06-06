@@ -56,6 +56,7 @@ export default class TreeStore {
 
       if (!val) return
 
+      // 过滤时需要展开所有节点
       if (node.visible && !node.isLeaf && !lazy) {
         node.expand()
       }
@@ -63,9 +64,12 @@ export default class TreeStore {
 
     traverse(this)
   }
+  /**
+   * 设置树数据，如果数据变了更新整个树
+   */
   setData(val) {
     const instanceChanged = val !== this.root.data
-
+    // 根节点变化了
     if (instanceChanged) {
       this.root.setData(val)
       this._initDefaultCheckedNodes()
@@ -73,6 +77,9 @@ export default class TreeStore {
       this.root.updateChildren()
     }
   }
+  /**
+   * 获取节点实例
+   */
   getNode(data) {
     if (data instanceof Node) return data
     const key = typeof data === 'object' ? data : getNodeKey(this.key, data)
@@ -103,6 +110,9 @@ export default class TreeStore {
       parentNode.insertChild({ data })
     }
   }
+  /**
+   * 根据设置初始化所有选中节点
+   */
   _initDefaultCheckedNodes() {
     const defaultCheckedKeys = this.defaultCheckedKeys || []
     const nodesMap = this.nodesMap
@@ -128,6 +138,9 @@ export default class TreeStore {
       this._initDefaultCheckedNodes()
     }
   }
+  /**
+   * 将节点缓存成 {nodeKey: node} 的结构
+   */
   registerNode(node) {
     const key = this.key
     if (!key || !node || !node.data) return
@@ -145,6 +158,9 @@ export default class TreeStore {
 
     delete this.nodesMap[node.key]
   }
+  /**
+   * 获取选中节点状态，使用了递归
+   */
   getCheckedNodes(leafOnly = false, includeHalfChecked = false) {
     const checkedNodes = []
     const traverse = function(node) {
@@ -189,6 +205,9 @@ export default class TreeStore {
   getHalfCheckedKeys() {
     return this.getHalfCheckedNodes().map(data => (data || {})[this.key])
   }
+  /**
+   * 从缓存中获取所有节点
+   */
   _getAllNodes() {
     const nodes = []
     const nodesMap = this.nodesMap

@@ -217,6 +217,8 @@ export default {
 
     const props = tree.props || {}
     const childrenKey = props['children'] || 'children'
+
+    // 设置子节点变化监听器
     this.$watch(`node.data.${childrenKey}`, () => {
       this.node.updateChildren()
     })
